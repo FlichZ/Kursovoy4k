@@ -1,0 +1,27 @@
+{% extends 'shop/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">{% if user %}Редактирование{% else %}Создание{% endif %} пользователя</h2>
+    <form method="post" class="card p-4 shadow">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="username" class="form-label">Логин:</label>
+            <input type="text" name="username" id="username" class="form-control" value="{% if user %}{{ user.username }}{% endif %}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            <input type="email" name="email" id="email" class="form-control" value="{% if user %}{{ user.email }}{% endif %}" required>
+        </div>
+        {% if not user %}
+        <div class="mb-3">
+            <label for="password" class="form-label">Пароль:</label>
+            <input type="password" name="password" id="password" class="form-control" required>
+        </div>
+        {% endif %}
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'custom_admin:user_list' %}" class="btn btn-secondary">Назад</a>
+            <button type="submit" class="btn btn-primary">{% if user %}Обновить{% else %}Создать{% endif %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

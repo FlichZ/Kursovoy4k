@@ -1,0 +1,91 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">{% if product %}Редактирование{% else %}Создание{% endif %} продукта</h2>
+
+    <form method="post" enctype="multipart/form-data" class="card p-4 shadow">
+        {% csrf_token %}
+
+        <!-- Наименование -->
+        <div class="mb-3">
+            <label for="title" class="form-label">Наименование:</label>
+            <input type="text" name="title" id="title" class="form-control" value="{% if product %}{{ product.title }}{% endif %}" required>
+        </div>
+
+        <!-- Slug (скрытое поле) -->
+        <div class="mb-3">
+            <label for="slug" class="form-label">Slug (заполняется автоматически):</label>
+            <input type="text" name="slug" id="slug" class="form-control" value="{% if product %}{{ product.slug }}{% endif %}" readonly>
+        </div>
+
+        <!-- Категория -->
+        <div class="mb-3">
+            <label for="category" class="form-label">Категория:</label>
+            <select name="category" id="category" class="form-select" required>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if product and category.id == product.category.id %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Теги -->
+        <div class="mb-3">
+            <label for="tags" class="form-label">Теги:</label>
+            <select name="tags" id="tags" class="form-select" multiple>
+                <option value="" disabled>Выберите теги...</option>
+                {% for tag in tags %}
+                    <option value="{{ tag.id }}" {% if product and tag in product.tags.all %}selected{% endif %}>
+                        {{ tag.name }}
+                    </option>
+                {% endfor %}
+            </select>
+            <small class="text-muted">Удерживайте CTRL или SHIFT для выбора нескольких тегов.</small>
+        </div>
+
+        <!-- Цена -->
+        <div class="mb-3">
+            <label for="price" class="form-label">Цена:</label>
+            <input type="number" name="price" id="price" class="form-control" step="0.01" value="{% if product %}{{ product.price }}{% endif %}" required>
+        </div>
+
+        <!-- Описание -->
+        <div class="mb-3">
+            <label for="description" class="form-label">Описание:</label>
+            <textarea name="description" id="description" class="form-control" rows="4" required>{% if product %}{{ product.description }}{% endif %}</textarea>
+        </div>
+
+        <!-- Изображение -->
+        <div class="mb-3">
+            <label for="image" class="form-label">Изображение:</label>
+            <input type="file" name="image" id="image" class="form-control">
+            {% if product and product.image %}
+                <img src="{{ product.image.url }}" alt="Текущее изображение" class="img-thumbnail mt-3" style="max-width: 200px;">
+            {% endif %}
+        </div>
+
+        <!-- Доступность -->
+        <div class="mb-3 form-check">
+            <input type="checkbox" name="available" id="available" class="form-check-input" {% if product and product.available %}checked{% endif %}>
+            <label for="available" class="form-check-label">Доступен</label>
+        </div>
+
+        <!-- Кнопки -->
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'custom_admin:product_list' %}" class="btn btn-secondary">Назад</a>
+            <button type="submit" class="btn btn-primary">{% if product %}Обновить{% else %}Создать{% endif %}</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Автозаполнение Slug
+    document.getElementById('title').addEventListener('input', function () {
+        const title = this.value;
+        const slug = title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        document.getElementById('slug').value = slug;
+    });
+</script>
+{% endblock %}

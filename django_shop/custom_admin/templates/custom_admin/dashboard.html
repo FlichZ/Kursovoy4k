@@ -1,0 +1,269 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Admin Dashboard</h1>
+
+    <!-- Статистика -->
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text display-6">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Products</h5>
+                    <p class="card-text display-6">{{ total_product }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Sales</h5>
+                    <p class="card-text display-6">{{ total_sales }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Reviews</h5>
+                    <p class="card-text display-6">{{ total_review }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Total Tags</h5>
+                    <p class="card-text display-6">{{ total_tags }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Управление разделами -->
+    <div class="mt-5">
+        <h2 class="mb-3">Управление разделами</h2>
+        <div class="list-group">
+            <a href="{% url 'custom_admin:product_list' %}" class="list-group-item list-group-item-action">
+                Управление продуктами
+            </a>
+            <a href="{% url 'custom_admin:filter_list' %}" class="list-group-item list-group-item-action">
+                Управление фильтрами
+            </a>
+            <a href="{% url 'custom_admin:tag_list' %}" class="list-group-item list-group-item-action">
+                Управление тегами
+            </a>
+            <a href="{% url 'custom_admin:review_list' %}" class="list-group-item list-group-item-action">
+                Управление отзывами
+            </a>
+            <a href="{% url 'custom_admin:category_list' %}" class="list-group-item list-group-item-action">
+                Управление категориями
+            </a>
+            <a href="{% url 'custom_admin:order_list' %}" class="list-group-item list-group-item-action">
+                Управление заказами
+            </a>
+            <a href="{% url 'custom_admin:user_list' %}" class="list-group-item list-group-item-action">
+                Управление пользователями
+            </a> <!-- Ссылка на страницу с заказами пользователя -->
+            <a href="{% url 'custom_admin:orderitem_list' %}" class="list-group-item list-group-item-action">
+                Управление товарами в заказах
+            </a>
+        </div>
+    </div>
+
+    <!-- График регистраций -->
+    <div class="mt-5">
+        <h2>Регистрации пользователей</h2>
+        <form method="get" class="d-flex flex-wrap mb-3">
+            <div class="me-3">
+                <label for="registration_range" class="form-label">Выберите диапазон:</label>
+                <select name="registration_range" id="registration_range" class="form-select w-auto" onchange="toggleCustomRange('registration', this.value)">
+                    <option value="week" {% if registration_range == 'week' %}selected{% endif %}>Неделя</option>
+                    <option value="month" {% if registration_range == 'month' %}selected{% endif %}>Месяц</option>
+                    <option value="year" {% if registration_range == 'year' %}selected{% endif %}>Год</option>
+                    <option value="custom" {% if registration_range == 'custom' %}selected{% endif %}>Пользовательский</option>
+                </select>
+            </div>
+            <div id="registration-custom-range" style="{% if registration_range != 'custom' %}display:none;{% endif %}" class="d-flex flex-wrap">
+                <div class="me-3">
+                    <label for="registration_start_date" class="form-label">Начало:</label>
+                    <input type="date" name="registration_start_date" id="registration_start_date" class="form-control"
+                           value="{{ registration_start_date }}">
+                </div>
+                <div>
+                    <label for="registration_end_date" class="form-label">Конец:</label>
+                    <input type="date" name="registration_end_date" id="registration_end_date" class="form-control"
+                           value="{{ registration_end_date }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary ms-3 mt-3">Применить</button>
+        </form>
+        <canvas id="registrationChart"></canvas>
+    </div>
+
+    <!-- Скрипт для графика регистраций -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleCustomRange(prefix, value) {
+            document.getElementById(`${prefix}-custom-range`).style.display = value === 'custom' ? 'flex' : 'none';
+        }
+
+        var ctxRegistration = document.getElementById('registrationChart').getContext('2d');
+        new Chart(ctxRegistration, {
+            type: 'bar',
+            data: {
+                labels: {{ registration_labels|safe }},
+                datasets: [{
+                    label: 'Регистрации',
+                    data: {{ registration_data|safe }},
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+    </script>
+
+    <!-- График заказов -->
+    <div class="mt-5">
+        <h2>Заказы</h2>
+        <form method="get" class="d-flex flex-wrap mb-3">
+            <div class="me-3">
+                <label for="order_range" class="form-label">Выберите диапазон:</label>
+                <select name="order_range" id="order_range" class="form-select w-auto" onchange="toggleCustomRange('order', this.value)">
+                    <option value="week" {% if order_range == 'week' %}selected{% endif %}>Неделя</option>
+                    <option value="month" {% if order_range == 'month' %}selected{% endif %}>Месяц</option>
+                    <option value="year" {% if order_range == 'year' %}selected{% endif %}>Год</option>
+                    <option value="custom" {% if order_range == 'custom' %}selected{% endif %}>Пользовательский</option>
+                </select>
+            </div>
+            <div id="order-custom-range" style="{% if order_range != 'custom' %}display:none;{% endif %}" class="d-flex flex-wrap">
+                <div class="me-3">
+                    <label for="order_start_date" class="form-label">Начало:</label>
+                    <input type="date" name="order_start_date" id="order_start_date" class="form-control"
+                           value="{{ order_start_date }}">
+                </div>
+                <div>
+                    <label for="order_end_date" class="form-label">Конец:</label>
+                    <input type="date" name="order_end_date" id="order_end_date" class="form-control"
+                           value="{{ order_end_date }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary ms-3 mt-3">Применить</button>
+        </form>
+        <canvas id="orderChart"></canvas>
+    </div>
+
+    <!-- Скрипт для графика заказов -->
+    <script>
+        var ctxOrder = document.getElementById('orderChart').getContext('2d');
+        new Chart(ctxOrder, {
+            type: 'line',
+            data: {
+                labels: {{ order_labels|safe }},
+                datasets: [{
+                    label: 'Заказы',
+                    data: {{ order_data|safe }},
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+    </script>
+
+    <div class="container mt-5">
+    <!-- Backup and Restore Section -->
+        <h2 class="mt-5">Резервное копирование и восстановление</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <form method="post" action="{% url 'custom_admin:backup_db' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-download"></i> Создать резервную копию
+                    </button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <form method="post" enctype="multipart/form-data" action="{% url 'custom_admin:restore_db' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="backup_file" class="form-label">Выберите файл для восстановления:</label>
+                        <input type="file" name="backup_file" id="backup_file" class="form-control" accept=".json,.sql" required>
+                    </div>
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fas fa-upload"></i> Восстановить из резервной копии
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% if messages %}
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const messageModalElement = document.getElementById("messageModal");
+            if (messageModalElement) {
+                const messageModal = new bootstrap.Modal(messageModalElement);
+                messageModal.show();
+            }
+        });
+    </script>
+    {% endif %}
+<div class="container mt-5">
+    <!-- Reports Section -->
+    <h2 class="mt-5">Отчеты</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <form method="get" action="{% url 'custom_admin:generate_report' %}">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-file-excel"></i> Создать отчет о покупках
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</div>
+{% endblock %}

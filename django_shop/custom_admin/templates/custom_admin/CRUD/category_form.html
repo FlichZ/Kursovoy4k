@@ -1,0 +1,30 @@
+{% extends 'shop/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">{% if category %}Редактирование{% else %}Создание{% endif %} категории</h2>
+    <form method="post" class="form shadow-lg p-4 rounded bg-light">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Имя категории:</label>
+            <input type="text" name="name" id="name" class="form-control"
+                   value="{{ category.name|default:'' }}" placeholder="Введите имя категории" required>
+        </div>
+        <div class="mb-3">
+            <label for="slug" class="form-label">Slug (формируется автоматически при вводе имени):</label>
+            <input type="text" name="slug" id="slug" class="form-control"
+                   value="{{ category.slug|default:'' }}" readonly>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">{% if category %}Обновить{% else %}Создать{% endif %}</button>
+        <a href="{% url 'custom_admin:category_list' %}" class="btn btn-secondary w-100 mt-3">Назад</a>
+    </form>
+</div>
+<script>
+    // Автогенерация slug при вводе имени категории
+    const nameInput = document.getElementById('name');
+    const slugInput = document.getElementById('slug');
+
+    nameInput.addEventListener('input', () => {
+        slugInput.value = nameInput.value.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <h1 class="text-center mb-4">
+        {% if request.resolver_match.url_name != 'product_list' %}
+            {{ title }}
+        {% else %}
+            Все продукты
+        {% endif %}
+    </h1>
+    <div class="row">
+        <!-- Sidebar with filters -->
+        <div class="col-lg-3">
+            <div class="card shadow">
+                {% if selected_tags %}
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Выбранные теги</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            {% for tag in selected_tags_objects %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ tag.name }}
+                                    <a href="?{% for selected_tag in selected_tags_objects %}{% if selected_tag.id != tag.id %}tag={{ selected_tag.id }}&{% endif %}{% endfor %}" class="btn btn-sm btn-outline-danger">Убрать</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if not hide_filter_panel %}
+                    <form method="get" action="{% url 'shop:product_list' %}" id="filterForm" class="p-3">
+                        {% for filter_name, tags in tags_by_filter.items %}
+                            {% if tags and filter_name not in matched_filters %}
+                                <article class="filter-group mb-4">
+                                    <header class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">{{ filter_name }}</h6>
+                                        <button type="button" class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#collapse_{{ forloop.counter }}" aria-expanded="true">
+                                            <i class="fa fa-chevron-down"></i>
+                                        </button>
+                                    </header>
+                                    <div class="collapse show mt-2" id="collapse_{{ forloop.counter }}">
+                                        <div class="card-body">
+                                            {% for tag in tags %}
+                                                <label class="d-block">
+                                                    <input type="checkbox" name="tag" value="{{ tag.id }}" {% if tag.id in selected_filters|default:'' %}checked{% endif %} onchange="document.getElementById('filterForm').submit();">
+                                                    {{ tag.name }}
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </article>
+                            {% endif %}
+                        {% endfor %}
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product grid -->
+        <div class="col-lg-9">
+            {% if products %}
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    {% for product in products %}
+                        <div class="col">
+                            <div class="card shadow-sm h-100">
+                                <a href="{{ product.get_absolute_url }}">
+                                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'shop/img/no_image.png' %}{% endif %}" class="card-img-top product-img" alt="{{ product.title }}">
+                                </a>
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ product.title }}</h6>
+                                    <p class="card-text text-muted">€ {{ product.price }}</p>
+                                </div>
+                                {% if user.is_staff %}
+                                    <div class="card-footer d-flex justify-content-between">
+                                        <a href="{% url 'custom_admin:product_edit' pk=product.pk %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ product.id }}">Удалить</button>
+                                    </div>
+
+                                    <!-- Modal for deletion confirmation -->
+                                    <div class="modal fade" id="deleteModal{{ product.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ product.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel{{ product.id }}">Подтверждение удаления</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Вы уверены, что хотите удалить продукт "<strong>{{ product.title }}</strong>"?
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                                    <form method="post" action="{% url 'custom_admin:product_delete' pk=product.pk %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-danger">Удалить</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center mt-5">Нет доступных продуктов.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

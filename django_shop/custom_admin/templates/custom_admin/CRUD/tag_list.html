@@ -1,0 +1,94 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Список тегов</h2>
+
+    {% if tags %}
+    <table class="table table-hover shadow-lg rounded">
+        <thead class="thead-light">
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th class="text-center">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tag in tags %}
+            <tr>
+                <td>{{ tag.id }}</td>
+                <td>{{ tag.name }}</td>
+                <td class="text-center">
+                    <a href="{% url 'custom_admin:tag_edit' tag.id %}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit"></i> Редактировать
+                    </a>
+                    <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ tag.id }}">
+                        <i class="fas fa-trash-alt"></i> Удалить
+                    </button>
+
+                    <!-- Delete Confirmation Modal -->
+                    <div class="modal fade" id="deleteModal{{ tag.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ tag.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="deleteModalLabel{{ tag.id }}">Подтверждение удаления</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Вы уверены, что хотите удалить тег "<strong>{{ tag.name }}</strong>"?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                    <form method="post" action="{% url 'custom_admin:tag_delete' tag.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">Удалить</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        {% if tags.has_other_pages %}
+        <nav>
+            <ul class="pagination">
+                {% if tags.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page=1">&laquo; Первая</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ tags.previous_page_number }}">Назад</a></li>
+                {% endif %}
+                {% for num in tags.paginator.page_range %}
+                {% if tags.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > tags.number|add:'-3' and num < tags.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if tags.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ tags.next_page_number }}">Вперед</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ tags.paginator.num_pages }}">Последняя &raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+    {% else %}
+    <p class="text-center">Нет тегов в базе данных.</p>
+    {% endif %}
+
+    <!-- Add Tag Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'custom_admin:tag_create' %}" class="btn btn-success btn-lg">
+            <i class="fas fa-plus-circle"></i> Добавить новый тег
+        </a>
+    </div>
+</div>
+
+<!-- Include Bootstrap JS (if not already included) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

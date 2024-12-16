@@ -1,0 +1,19 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">{% if tag %}Редактирование{% else %}Создание{% endif %} тега</h2>
+    <form method="post" class="form shadow-lg p-4 rounded bg-light">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="name" class="form-label">Имя тега:</label>
+            <input type="text" name="name" id="name" class="form-control"
+                   value="{{ tag.name|default:'' }}" placeholder="Введите имя тега" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+            {% if tag %}Обновить{% else %}Создать{% endif %}
+        </button>
+        <a href="{% url 'custom_admin:tag_list' %}" class="btn btn-secondary w-100 mt-3">Назад</a>
+    </form>
+</div>
+{% endblock %}
