@@ -8,4 +8,4 @@ def get_categories_from_shop(request):
     Таким образом, в каждом шаблоне можно использовать эту переменную без необходимости
     повторного получения данных из базы данных."""
     categories = Category.objects.all()
-    return {'categories': categories}
+    return {"categories": categories}

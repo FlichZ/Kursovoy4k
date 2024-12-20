@@ -1,5 +1,4 @@
 from django.contrib import admin
-from shop.models import Category, Tag, Product
 
 # Здесь можно добавить кастомное администрирование
 # Но для этого проекта мы используем свой собственный интерфейс
