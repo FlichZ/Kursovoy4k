@@ -2,8 +2,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from shop.forms import (FeedbackForm, LoginUserForm, RegisterUserForm,
-                        ReviewForm)
+from shop.forms import FeedbackForm, LoginUserForm, RegisterUserForm, ReviewForm
 from shop.models import Category, Product, Review
 
 

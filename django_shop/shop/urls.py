@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .views import *
+from .views import CategoryViewSet, FeedbackFormView, FiltersViewSet, LoginUser, ProductDetailView, ProductViewSet, RegisterUser, ReviewViewSet, ShopCategory, ShopHome, TagViewSet, about, logout_user, my_orders, pay_order
 
 router = routers.DefaultRouter()
 router.register(r"filters", FiltersViewSet)

@@ -6,16 +6,21 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import (CreateView, DetailView, FormView, ListView)
+from django.views.generic import CreateView, DetailView, FormView, ListView
 from loguru import logger
 from orders.models import Order
 from rest_framework import viewsets
 
-from .forms import (FeedbackForm, LoginUserForm, RegisterUserForm, ReviewForm)
-from .models import *
+from .forms import FeedbackForm, LoginUserForm, RegisterUserForm, ReviewForm
+from .models import Category, Filters, Product, Review, Tag
 from .permissions import IsStaffOrReadOnly
-from .serializers import (CategorySerializer, FiltersSerializer,
-                          ProductSerializer, ReviewSerializer, TagSerializer)
+from .serializers import (
+    CategorySerializer,
+    FiltersSerializer,
+    ProductSerializer,
+    ReviewSerializer,
+    TagSerializer,
+)
 from .utils import DataMixin
 
 logger.add(

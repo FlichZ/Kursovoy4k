@@ -1,8 +1,15 @@
 from django.urls import path
 
 from . import views
-from .views import (backup_db, generate_report, restore_db, user_create,
-                    user_delete, user_edit, user_list)
+from .views import (
+    backup_db,
+    generate_report,
+    restore_db,
+    user_create,
+    user_delete,
+    user_edit,
+    user_list,
+)
 
 app_name = "custom_admin"
 

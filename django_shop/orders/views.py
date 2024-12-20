@@ -1,10 +1,15 @@
 from cart.cart_services import Cart
-from cart.views import *
+from cart.views import render
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.urls import reverse_lazy
-from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  UpdateView)
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    UpdateView,
+)
 from rest_framework import viewsets
 
 from .forms import OrderCreateForm
